@@ -37,27 +37,23 @@ public class JobCompletionNotificationListener extends JobExecutionListenerSuppo
                     .getResultList()
                     .stream()
                     .map(e -> new Team((String) e[0], (long) e[1]))
-                    .forEach(team -> teamData.put(((Team) team).getTeamName(), team));
+                    .forEach(team -> teamData.put((team).getTeamName(), team));
 
             em.createQuery("SELECT team2, count(*) FROM Match GROUP BY team2", Object[].class)
                     .getResultList()
-                    .stream()
                     .forEach(e -> {
-                        Team team = teamData.get((String) e[0]);
+                        Team team = teamData.get(String.valueOf(e[0]));
                         team.setTotalMatches(team.getTotalMatches() + (long) e[1]);
                     });
 
             em.createQuery("SELECT matchWinner, count(*) FROM Match GROUP BY matchWinner", Object[].class)
                     .getResultList()
-                    .stream()
                     .forEach(e -> {
-                        Team team = teamData.get((String) e[0]);
+                        Team team = teamData.get(String.valueOf(e[0]));
                         if (null != team) team.setTotalWins((long) e[1]);
                     });
 
-            teamData.values().forEach(team -> em.persist(team));
-            teamData.values().forEach(team -> System.out.println(team));
-
+            teamData.values().forEach(em::persist);
         }
     }
 }
